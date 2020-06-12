@@ -1,3 +1,19 @@
 #+TITLE: LeNet-5
 
+This is a reimplementation of LeNet-5, and the training set is hte MNIST.
 
+* LeNet-5 Architecture
+
+网络结构详细参数, 详情见下面的链接.
+
+[[https://engmrk.com/lenet-5-a-classic-cnn-architecture/][LeNet-5]]
+
+[[./LeNEt_Summary_Table.jpg]]
+
+* Input
+
+* Output
+
+* Loss
+
+* 优化方法
