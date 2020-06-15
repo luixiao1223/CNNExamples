@@ -37,10 +37,9 @@ net = LeNet5()
 net.cuda()
 
 loss_func = torch.nn.CrossEntropyLoss()
+optim = torch.optim.Adam(net.parameters(), lr=2e-3)
 
-optim = torch.optim.SGD(net.parameters(), lr = 0.001, momentum=0.9)
-
-numEpochs = 20
+numEpochs = 40
 training_accuracy = []
 validation_accuracy = []
 
@@ -49,17 +48,29 @@ for epoch in range(numEpochs):
     num_batches = 0
 
     for batch_num, training_batch in enumerate(train_loader):
+        optim.zero_grad()
         inputs, labels = training_batch
         inputs, labels = torch.autograd.Variable(inputs.cuda()), torch.autograd.Variable(labels.cuda())
-        optim.zero_grad()
         forward_output = net(inputs)
         loss = loss_func(forward_output, labels)
         loss.backward()
         optim.step()
-        epoch_training_loss += loss.data[0]
+        epoch_training_loss += loss.data.item()
         num_batches += 1
 
     print("epoch: ", epoch, ", loss: ", epoch_training_loss/num_batches)
+
+    accuracy = 0.0
+    num_batches = 0
+    for batch_num, training_batch in enumerate(train_loader):
+        num_batches += 1
+        inputs, actual_val = training_batch
+        predicted_val = net(torch.autograd.Variable(inputs.cuda()))
+        predicted_val = predicted_val.cpu().data.numpy()
+        predicted_val = np.argmax(predicted_val, axis=1)
+        accuracy += accuracy_score(actual_val.numpy(), predicted_val)
+
+    training_accuracy.append(accuracy/num_batches)
 
     accuracy = 0.0
     num_batches = 0
@@ -70,7 +81,7 @@ for epoch in range(numEpochs):
         inputs, actual_val = training_batch
         predicted_val = net(torch.autograd.Variable(inputs.cuda()))
         predicted_val = predicted_val.cpu().data.numpy()
-        predicted_val = np.argmax(predicted_val, axis = 1)
+        predicted_val = np.argmax(predicted_val, axis=1)
         accuracy += accuracy_score(actual_val.numpy(), predicted_val)
 
     validation_accuracy.append(accuracy/num_batches)
